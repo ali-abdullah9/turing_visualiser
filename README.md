@@ -9,6 +9,7 @@ An educational, web-based Turing Machine emulator that performs binary arithmeti
 ## Features
 
 ### 🎯 Core Functionality
+
 - **Binary Arithmetic Operations**: Supports both addition and subtraction
 - **Step-by-Step Execution**: Visualize each state transition
 - **Interactive Controls**: Play, pause, step forward/backward through execution
@@ -16,6 +17,7 @@ An educational, web-based Turing Machine emulator that performs binary arithmeti
 - **Execution History**: Navigate through previous states
 
 ### 🎨 User Interface
+
 - **Infinite Tape Visualization**: Smooth scrolling tape with highlighted cells
 - **State Indicator**: Real-time display of current machine state
 - **Transition Table Viewer**: Collapsible table showing all state transitions
@@ -23,6 +25,7 @@ An educational, web-based Turing Machine emulator that performs binary arithmeti
 - **Preset Examples**: 6 pre-configured examples to get started quickly
 
 ### 🌓 Design & Accessibility
+
 - **Dark/Light Mode**: Fully functional theme switching
 - **Responsive Design**: Works seamlessly on mobile, tablet, and desktop
 - **Smooth Animations**: Framer Motion powered transitions
@@ -47,17 +50,20 @@ An educational, web-based Turing Machine emulator that performs binary arithmeti
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd turing_visualiser
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -142,7 +148,7 @@ The emulator implements a simplified Turing Machine with:
 - **Tape**: Dynamic array that expands as needed
 - **States**: String-based state identification
 - **Transitions**: Map-based lookup for O(1) performance
-- **Symbols**: Support for 0, 1, _, #, X, C (blank, marker, processed, carry)
+- **Symbols**: Support for 0, 1, \_, #, X, C (blank, marker, processed, carry)
 - **Movements**: Left (L), Right (R), Stay (S)
 
 ### Transition Tables
@@ -150,6 +156,7 @@ The emulator implements a simplified Turing Machine with:
 The transition tables are defined for:
 
 1. **Binary Addition**:
+
    - Processes numbers from right to left
    - Handles carry propagation
    - Writes result to tape
@@ -191,6 +198,7 @@ Or connect your GitHub repository to Vercel for automatic deployments.
 ### Other Platforms
 
 The application is a standard Next.js app and can be deployed to:
+
 - Netlify
 - AWS Amplify
 - Cloudflare Pages
@@ -208,6 +216,7 @@ This tool is designed for:
 ### Learning Outcomes
 
 Users will understand:
+
 - How Turing Machines process input
 - State transitions and tape manipulation
 - Binary arithmetic at a fundamental level
@@ -246,5 +255,3 @@ This project is open source and available under the MIT License.
 For questions, issues, or suggestions, please open an issue on GitHub.
 
 ---
-
-**Made with ❤️ for Computer Science Education**
