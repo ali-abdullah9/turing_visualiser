@@ -46,9 +46,6 @@ export function TapeVisualization({
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           Tape
         </h3>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
-          Head at position: {headPosition}
-        </div>
       </div>
 
       {/* Tape cells container */}
@@ -63,16 +60,21 @@ export function TapeVisualization({
           {visibleCells.map((cell, index) => {
             const actualIndex = startIndex + index;
             const isHead = actualIndex === headPosition;
-            const displayValue = cell === '_' ? '∅' : cell;
+            // Show blank cells as empty, not as ∅
+            const displayValue = cell === '_' ? '' : cell;
 
             return (
               <div key={`cell-wrapper-${actualIndex}`} className="relative flex flex-col items-center">
                 {/* Cell */}
                 <motion.div
-                  key={`cell-${actualIndex}`}
+                  key={`cell-${actualIndex}-${cell}`}
                   data-cell-index={actualIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  initial={{ scale: 1 }}
+                  animate={{
+                    scale: isHead ? 1.05 : 1,
+                    opacity: 1
+                  }}
+                  transition={{ duration: 0.2 }}
                   className={`
                     w-14 h-14 md:w-16 md:h-16
                     flex items-center justify-center
@@ -87,7 +89,14 @@ export function TapeVisualization({
                     }
                   `}
                 >
-                  {displayValue}
+                  <motion.span
+                    key={`value-${actualIndex}-${cell}`}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {displayValue}
+                  </motion.span>
                 </motion.div>
 
                 {/* Cell index below */}
@@ -112,7 +121,7 @@ export function TapeVisualization({
         </div>
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 border-2 border-gray-700 dark:border-gray-400 bg-gray-800 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-300">
-            ∅
+            {/* Empty - blank cell */}
           </div>
           <span>Blank cell</span>
         </div>
