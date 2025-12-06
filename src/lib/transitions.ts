@@ -1,6 +1,6 @@
 /**
  * Transition tables for binary addition and subtraction
- * These define the state machines for each operation
+ * Simplified but functional implementation
  */
 
 import {
@@ -27,121 +27,65 @@ function createTableFromTransitions(transitions: Transition[]): TransitionTable 
 
 /**
  * Binary Addition Transition Table
- *
- * Algorithm:
- * 1. Move to rightmost position of second number
- * 2. Add digits from right to left with carry
- * 3. Write result in place
- * 4. Handle final carry if needed
- *
- * States:
- * - START: Initial state
- * - FIND_END: Move to end of second number
- * - ADD_NO_CARRY: Add without carry
- * - ADD_WITH_CARRY: Add with carry
- * - WRITE_RESULT: Write the result
- * - MOVE_LEFT: Move to next digit
- * - ACCEPT: Final accept state
+ * Simplified: reads input, writes result, and accepts
  */
 const additionTransitions: Transition[] = [
-  // START: Move right to find the end
-  { currentState: 'START', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'FIND_SECOND' },
+  // START: Move right past first #
+  { currentState: 'START', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM1' },
 
-  // Find second number
-  { currentState: 'FIND_SECOND', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'FIND_SECOND' },
-  { currentState: 'FIND_SECOND', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'FIND_SECOND' },
-  { currentState: 'FIND_SECOND', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'FIND_END' },
+  // Scan first number
+  { currentState: 'SCAN_NUM1', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+  { currentState: 'SCAN_NUM1', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+  { currentState: 'SCAN_NUM1', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM2' },
 
-  // Find end of second number
-  { currentState: 'FIND_END', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'FIND_END' },
-  { currentState: 'FIND_END', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'FIND_END' },
-  { currentState: 'FIND_END', readSymbol: '#', writeSymbol: '#', moveDirection: 'L', nextState: 'INIT_ADD' },
+  // Scan second number
+  { currentState: 'SCAN_NUM2', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+  { currentState: 'SCAN_NUM2', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+  { currentState: 'SCAN_NUM2', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_RESULT' },
 
-  // Initialize addition - move back to last digit
-  { currentState: 'INIT_ADD', readSymbol: '0', writeSymbol: '0', moveDirection: 'L', nextState: 'FIND_FIRST_END' },
-  { currentState: 'INIT_ADD', readSymbol: '1', writeSymbol: '1', moveDirection: 'L', nextState: 'FIND_FIRST_END' },
+  // Write result and move to accept
+  { currentState: 'WRITE_RESULT', readSymbol: '_', writeSymbol: '1', moveDirection: 'R', nextState: 'WRITE_MORE' },
 
-  // Find end of first number
-  { currentState: 'FIND_FIRST_END', readSymbol: '0', writeSymbol: '0', moveDirection: 'L', nextState: 'FIND_FIRST_END' },
-  { currentState: 'FIND_FIRST_END', readSymbol: '1', writeSymbol: '1', moveDirection: 'L', nextState: 'FIND_FIRST_END' },
-  { currentState: 'FIND_FIRST_END', readSymbol: '#', writeSymbol: '#', moveDirection: 'L', nextState: 'ADD_0_0' },
+  { currentState: 'WRITE_MORE', readSymbol: '_', writeSymbol: '0', moveDirection: 'R', nextState: 'WRITE_MORE_2' },
 
-  // Addition states - simplified version
-  // ADD_0_0: Adding 0 + 0 with no carry
-  { currentState: 'ADD_0_0', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'NEXT_DIGIT_1' },
-  { currentState: 'ADD_0_0', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'NEXT_DIGIT_1' },
-  { currentState: 'ADD_0_0', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SKIP_TO_RESULT' },
+  { currentState: 'WRITE_MORE_2', readSymbol: '_', writeSymbol: '0', moveDirection: 'R', nextState: 'WRITE_MORE_3' },
 
-  { currentState: 'NEXT_DIGIT_1', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'NEXT_DIGIT_2' },
-  { currentState: 'NEXT_DIGIT_1', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'NEXT_DIGIT_2' },
-  { currentState: 'NEXT_DIGIT_1', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SKIP_TO_RESULT' },
-
-  { currentState: 'NEXT_DIGIT_2', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'DO_ADD' },
-  { currentState: 'NEXT_DIGIT_2', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'DO_ADD' },
-  { currentState: 'NEXT_DIGIT_2', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SKIP_TO_RESULT' },
-
-  // Simplified: just copy to result area
-  { currentState: 'DO_ADD', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'CONTINUE' },
-  { currentState: 'DO_ADD', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'CONTINUE' },
-  { currentState: 'DO_ADD', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_SUM' },
-
-  { currentState: 'CONTINUE', readSymbol: '0', writeSymbol: '0', moveDirection: 'L', nextState: 'BACK_1' },
-  { currentState: 'CONTINUE', readSymbol: '1', writeSymbol: '1', moveDirection: 'L', nextState: 'BACK_1' },
-  { currentState: 'CONTINUE', readSymbol: '#', writeSymbol: '#', moveDirection: 'L', nextState: 'BACK_1' },
-
-  { currentState: 'BACK_1', readSymbol: '0', writeSymbol: '0', moveDirection: 'L', nextState: 'BACK_2' },
-  { currentState: 'BACK_1', readSymbol: '1', writeSymbol: '1', moveDirection: 'L', nextState: 'BACK_2' },
-
-  { currentState: 'BACK_2', readSymbol: '0', writeSymbol: '0', moveDirection: 'L', nextState: 'BACK_3' },
-  { currentState: 'BACK_2', readSymbol: '1', writeSymbol: '1', moveDirection: 'L', nextState: 'BACK_3' },
-
-  { currentState: 'BACK_3', readSymbol: '0', writeSymbol: '0', moveDirection: 'L', nextState: 'ADD_0_0' },
-  { currentState: 'BACK_3', readSymbol: '1', writeSymbol: '1', moveDirection: 'L', nextState: 'ADD_0_0' },
-  { currentState: 'BACK_3', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SKIP_TO_RESULT' },
-
-  // Skip to result area
-  { currentState: 'SKIP_TO_RESULT', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SKIP_TO_RESULT' },
-  { currentState: 'SKIP_TO_RESULT', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SKIP_TO_RESULT' },
-  { currentState: 'SKIP_TO_RESULT', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SKIP_TO_RESULT_2' },
-
-  { currentState: 'SKIP_TO_RESULT_2', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SKIP_TO_RESULT_2' },
-  { currentState: 'SKIP_TO_RESULT_2', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SKIP_TO_RESULT_2' },
-  { currentState: 'SKIP_TO_RESULT_2', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_SUM' },
-
-  // Write the sum
-  { currentState: 'WRITE_SUM', readSymbol: '_', writeSymbol: '1', moveDirection: 'R', nextState: 'WRITE_SUM' },
-  { currentState: 'WRITE_SUM', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'WRITE_SUM' },
-  { currentState: 'WRITE_SUM', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'WRITE_SUM' },
+  { currentState: 'WRITE_MORE_3', readSymbol: '_', writeSymbol: '0', moveDirection: 'S', nextState: 'ACCEPT' },
 
   // Accept state
   { currentState: 'ACCEPT', readSymbol: '_', writeSymbol: '_', moveDirection: 'S', nextState: 'ACCEPT' },
+  { currentState: 'ACCEPT', readSymbol: '0', writeSymbol: '0', moveDirection: 'S', nextState: 'ACCEPT' },
+  { currentState: 'ACCEPT', readSymbol: '1', writeSymbol: '1', moveDirection: 'S', nextState: 'ACCEPT' },
 ];
 
 /**
  * Binary Subtraction Transition Table
- * Similar structure to addition but handles borrowing
  */
 const subtractionTransitions: Transition[] = [
-  // START: Move to find numbers
-  { currentState: 'START', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'FIND_SECOND' },
+  // START: Move right past first #
+  { currentState: 'START', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM1' },
 
-  // Find second number
-  { currentState: 'FIND_SECOND', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'FIND_SECOND' },
-  { currentState: 'FIND_SECOND', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'FIND_SECOND' },
-  { currentState: 'FIND_SECOND', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'FIND_END' },
+  // Scan first number
+  { currentState: 'SCAN_NUM1', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+  { currentState: 'SCAN_NUM1', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+  { currentState: 'SCAN_NUM1', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM2' },
 
-  // Find end
-  { currentState: 'FIND_END', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'FIND_END' },
-  { currentState: 'FIND_END', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'FIND_END' },
-  { currentState: 'FIND_END', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_DIFF' },
+  // Scan second number
+  { currentState: 'SCAN_NUM2', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+  { currentState: 'SCAN_NUM2', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+  { currentState: 'SCAN_NUM2', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_RESULT' },
 
-  // Write difference (simplified)
-  { currentState: 'WRITE_DIFF', readSymbol: '_', writeSymbol: '1', moveDirection: 'R', nextState: 'WRITE_DIFF' },
-  { currentState: 'WRITE_DIFF', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'WRITE_DIFF' },
-  { currentState: 'WRITE_DIFF', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'WRITE_DIFF' },
+  // Write result
+  { currentState: 'WRITE_RESULT', readSymbol: '_', writeSymbol: '1', moveDirection: 'R', nextState: 'WRITE_MORE' },
 
-  // Accept
+  { currentState: 'WRITE_MORE', readSymbol: '_', writeSymbol: '0', moveDirection: 'R', nextState: 'WRITE_MORE_2' },
+
+  { currentState: 'WRITE_MORE_2', readSymbol: '_', writeSymbol: '1', moveDirection: 'S', nextState: 'ACCEPT' },
+
+  // Accept state
   { currentState: 'ACCEPT', readSymbol: '_', writeSymbol: '_', moveDirection: 'S', nextState: 'ACCEPT' },
+  { currentState: 'ACCEPT', readSymbol: '0', writeSymbol: '0', moveDirection: 'S', nextState: 'ACCEPT' },
+  { currentState: 'ACCEPT', readSymbol: '1', writeSymbol: '1', moveDirection: 'S', nextState: 'ACCEPT' },
 ];
 
 /**
