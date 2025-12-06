@@ -59,49 +59,62 @@ export function TapeVisualization({
           scrollbarWidth: 'thin',
         }}
       >
-        <div className="flex items-center justify-center gap-0 min-w-max px-4">
+        <div className="flex items-center justify-start gap-0 min-w-max px-4">
           {visibleCells.map((cell, index) => {
             const actualIndex = startIndex + index;
             const isHead = actualIndex === headPosition;
-            const displayValue = cell === '_' ? '' : cell;
+            const displayValue = cell === '_' ? '∅' : cell;
 
             return (
-              <motion.div
-                key={`cell-${actualIndex}`}
-                data-cell-index={actualIndex}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className={`
-                  w-16 h-16 md:w-20 md:h-20
-                  flex items-center justify-center
-                  border-2 border-gray-800 dark:border-gray-300
-                  bg-white dark:bg-gray-900
-                  font-mono text-2xl md:text-3xl font-bold
-                  text-gray-900 dark:text-gray-100
-                  transition-all duration-200
-                  ${isHead ? 'border-yellow-500 border-4 shadow-lg z-10 scale-105' : ''}
-                  ${index > 0 ? '-ml-[2px]' : ''}
-                `}
-                style={{
-                  borderColor: isHead ? '#eab308' : undefined,
-                }}
-              >
-                {displayValue}
-              </motion.div>
+              <div key={`cell-wrapper-${actualIndex}`} className="relative flex flex-col items-center">
+                {/* Cell */}
+                <motion.div
+                  key={`cell-${actualIndex}`}
+                  data-cell-index={actualIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className={`
+                    w-14 h-14 md:w-16 md:h-16
+                    flex items-center justify-center
+                    border-2
+                    font-mono text-xl md:text-2xl font-semibold
+                    transition-all duration-200
+                    ${index > 0 ? '-ml-[2px]' : ''}
+                    ${
+                      isHead
+                        ? 'border-blue-500 bg-blue-500/20 dark:bg-blue-500/30 text-gray-900 dark:text-gray-100 shadow-lg z-10 border-[3px]'
+                        : 'border-gray-700 dark:border-gray-400 bg-gray-800 dark:bg-gray-700 text-gray-300 dark:text-gray-200'
+                    }
+                  `}
+                >
+                  {displayValue}
+                </motion.div>
+
+                {/* Cell index below */}
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {actualIndex}
+                </div>
+              </div>
             );
           })}
         </div>
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 justify-center">
+      <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 justify-start">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 border-4 border-yellow-500 bg-white dark:bg-gray-900" />
+          <div className="w-6 h-6 border-[3px] border-blue-500 bg-blue-500/20 dark:bg-blue-500/30" />
           <span>Current position</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 border-2 border-gray-800 dark:border-gray-300 bg-white dark:bg-gray-900" />
-          <span>Tape cell</span>
+          <div className="w-6 h-6 border-2 border-gray-700 dark:border-gray-400 bg-gray-800 dark:bg-gray-700" />
+          <span>Data cell</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 border-2 border-gray-700 dark:border-gray-400 bg-gray-800 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-300">
+            ∅
+          </div>
+          <span>Blank cell</span>
         </div>
       </div>
     </div>

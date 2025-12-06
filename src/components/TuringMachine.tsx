@@ -34,6 +34,7 @@ import { StateIndicator } from './StateIndicator';
 import { TransitionTable } from './TransitionTable';
 import { ResultDisplay } from './ResultDisplay';
 import { PresetExamples } from './PresetExamples';
+import { StateDiagram } from './StateDiagram';
 
 export function TuringMachine() {
   // Input state
@@ -304,6 +305,14 @@ export function TuringMachine() {
             <TapeVisualization
               tape={config.tape}
               currentState={config.currentState}
+            />
+          </div>
+
+          {/* State Diagram */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <StateDiagram
+              currentState={config.currentState}
+              operation={operation}
             />
           </div>
 
