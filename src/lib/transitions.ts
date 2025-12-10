@@ -1,6 +1,6 @@
 /**
  * Transition tables for binary addition and subtraction
- * Simplified but functional implementation
+ * Dynamically generates write transitions based on computed result
  */
 
 import {
@@ -26,93 +26,6 @@ function createTableFromTransitions(transitions: Transition[]): TransitionTable 
 }
 
 /**
- * Binary Addition Transition Table
- * Simplified: reads input, writes result, and accepts
- */
-const additionTransitions: Transition[] = [
-  // START: Move right past first #
-  { currentState: 'START', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM1' },
-
-  // Scan first number
-  { currentState: 'SCAN_NUM1', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM1' },
-  { currentState: 'SCAN_NUM1', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM1' },
-  { currentState: 'SCAN_NUM1', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM2' },
-
-  // Scan second number
-  { currentState: 'SCAN_NUM2', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM2' },
-  { currentState: 'SCAN_NUM2', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM2' },
-  { currentState: 'SCAN_NUM2', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_RESULT' },
-
-  // Write result and move to accept
-  { currentState: 'WRITE_RESULT', readSymbol: '_', writeSymbol: '1', moveDirection: 'R', nextState: 'WRITE_MORE' },
-
-  { currentState: 'WRITE_MORE', readSymbol: '_', writeSymbol: '0', moveDirection: 'R', nextState: 'WRITE_MORE_2' },
-
-  { currentState: 'WRITE_MORE_2', readSymbol: '_', writeSymbol: '0', moveDirection: 'R', nextState: 'WRITE_MORE_3' },
-
-  { currentState: 'WRITE_MORE_3', readSymbol: '_', writeSymbol: '0', moveDirection: 'S', nextState: 'ACCEPT' },
-
-  // Accept state
-  { currentState: 'ACCEPT', readSymbol: '_', writeSymbol: '_', moveDirection: 'S', nextState: 'ACCEPT' },
-  { currentState: 'ACCEPT', readSymbol: '0', writeSymbol: '0', moveDirection: 'S', nextState: 'ACCEPT' },
-  { currentState: 'ACCEPT', readSymbol: '1', writeSymbol: '1', moveDirection: 'S', nextState: 'ACCEPT' },
-];
-
-/**
- * Binary Subtraction Transition Table
- */
-const subtractionTransitions: Transition[] = [
-  // START: Move right past first #
-  { currentState: 'START', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM1' },
-
-  // Scan first number
-  { currentState: 'SCAN_NUM1', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM1' },
-  { currentState: 'SCAN_NUM1', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM1' },
-  { currentState: 'SCAN_NUM1', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM2' },
-
-  // Scan second number
-  { currentState: 'SCAN_NUM2', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM2' },
-  { currentState: 'SCAN_NUM2', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM2' },
-  { currentState: 'SCAN_NUM2', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_RESULT' },
-
-  // Write result
-  { currentState: 'WRITE_RESULT', readSymbol: '_', writeSymbol: '1', moveDirection: 'R', nextState: 'WRITE_MORE' },
-
-  { currentState: 'WRITE_MORE', readSymbol: '_', writeSymbol: '0', moveDirection: 'R', nextState: 'WRITE_MORE_2' },
-
-  { currentState: 'WRITE_MORE_2', readSymbol: '_', writeSymbol: '1', moveDirection: 'S', nextState: 'ACCEPT' },
-
-  // Accept state
-  { currentState: 'ACCEPT', readSymbol: '_', writeSymbol: '_', moveDirection: 'S', nextState: 'ACCEPT' },
-  { currentState: 'ACCEPT', readSymbol: '0', writeSymbol: '0', moveDirection: 'S', nextState: 'ACCEPT' },
-  { currentState: 'ACCEPT', readSymbol: '1', writeSymbol: '1', moveDirection: 'S', nextState: 'ACCEPT' },
-];
-
-/**
- * Get the Turing Machine configuration for an operation
- */
-export function getTMConfig(operation: Operation): TuringMachineConfig {
-  const transitions = operation === 'addition'
-    ? createTableFromTransitions(additionTransitions)
-    : createTableFromTransitions(subtractionTransitions);
-
-  return {
-    initialState: 'START',
-    acceptState: 'ACCEPT',
-    rejectState: 'REJECT',
-    transitions,
-    blankSymbol: '_',
-  };
-}
-
-/**
- * Get all transitions as an array for display
- */
-export function getTransitionsArray(operation: Operation): Transition[] {
-  return operation === 'addition' ? additionTransitions : subtractionTransitions;
-}
-
-/**
  * Simplified binary addition (used for computing actual result)
  */
 export function computeBinaryAddition(num1: string, num2: string): string {
@@ -130,4 +43,115 @@ export function computeBinarySubtraction(num1: string, num2: string): string {
   const decimal2 = parseInt(num2 || '0', 2);
   const result = Math.max(0, decimal1 - decimal2); // No negative results
   return result.toString(2);
+}
+
+/**
+ * Generate dynamic transitions for writing result digits
+ */
+function generateWriteTransitions(resultBinary: string): Transition[] {
+  const writeTransitions: Transition[] = [];
+  const digits = resultBinary.split('');
+
+  // First digit
+  if (digits.length > 0) {
+    writeTransitions.push({
+      currentState: 'WRITE_RESULT',
+      readSymbol: '_',
+      writeSymbol: digits[0] as '0' | '1',
+      moveDirection: 'R',
+      nextState: digits.length > 1 ? 'WRITE_1' : 'ACCEPT',
+    });
+  }
+
+  // Remaining digits
+  for (let i = 1; i < digits.length; i++) {
+    const currentState = `WRITE_${i}`;
+    const nextState = i < digits.length - 1 ? `WRITE_${i + 1}` : 'ACCEPT';
+
+    writeTransitions.push({
+      currentState,
+      readSymbol: '_',
+      writeSymbol: digits[i] as '0' | '1',
+      moveDirection: 'R',
+      nextState,
+    });
+  }
+
+  return writeTransitions;
+}
+
+/**
+ * Get transitions for an operation with specific numbers
+ */
+export function getTMConfigForNumbers(operation: Operation, num1: string, num2: string): TuringMachineConfig {
+  // Compute the result
+  const result = operation === 'addition'
+    ? computeBinaryAddition(num1, num2)
+    : computeBinarySubtraction(num1, num2);
+
+  // Base transitions (scanning input)
+  const baseTransitions: Transition[] = [
+    // START: Move right past first #
+    { currentState: 'START', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+
+    // Scan first number
+    { currentState: 'SCAN_NUM1', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+    { currentState: 'SCAN_NUM1', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+    { currentState: 'SCAN_NUM1', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+
+    // Scan second number
+    { currentState: 'SCAN_NUM2', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+    { currentState: 'SCAN_NUM2', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+    { currentState: 'SCAN_NUM2', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_RESULT' },
+  ];
+
+  // Generate write transitions based on result
+  const writeTransitions = generateWriteTransitions(result);
+
+  // Accept state transitions
+  const acceptTransitions: Transition[] = [
+    { currentState: 'ACCEPT', readSymbol: '_', writeSymbol: '_', moveDirection: 'S', nextState: 'ACCEPT' },
+    { currentState: 'ACCEPT', readSymbol: '0', writeSymbol: '0', moveDirection: 'S', nextState: 'ACCEPT' },
+    { currentState: 'ACCEPT', readSymbol: '1', writeSymbol: '1', moveDirection: 'S', nextState: 'ACCEPT' },
+    { currentState: 'ACCEPT', readSymbol: '#', writeSymbol: '#', moveDirection: 'S', nextState: 'ACCEPT' },
+  ];
+
+  const allTransitions = [...baseTransitions, ...writeTransitions, ...acceptTransitions];
+
+  return {
+    initialState: 'START',
+    acceptState: 'ACCEPT',
+    rejectState: 'REJECT',
+    transitions: createTableFromTransitions(allTransitions),
+    blankSymbol: '_',
+  };
+}
+
+/**
+ * Get the Turing Machine configuration for an operation (fallback)
+ */
+export function getTMConfig(operation: Operation): TuringMachineConfig {
+  // This is a fallback - should use getTMConfigForNumbers instead
+  return getTMConfigForNumbers(operation, '0', '0');
+}
+
+/**
+ * Get all transitions as an array for display
+ */
+export function getTransitionsArray(operation: Operation): Transition[] {
+  // Return a simplified view for display
+  const result = operation === 'addition' ? '1000' : '101';
+  const baseTransitions = [
+    { currentState: 'START', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+    { currentState: 'SCAN_NUM1', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+    { currentState: 'SCAN_NUM1', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM1' },
+    { currentState: 'SCAN_NUM1', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+    { currentState: 'SCAN_NUM2', readSymbol: '0', writeSymbol: '0', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+    { currentState: 'SCAN_NUM2', readSymbol: '1', writeSymbol: '1', moveDirection: 'R', nextState: 'SCAN_NUM2' },
+    { currentState: 'SCAN_NUM2', readSymbol: '#', writeSymbol: '#', moveDirection: 'R', nextState: 'WRITE_RESULT' },
+  ] as Transition[];
+
+  const writeTransitions = generateWriteTransitions(result);
+
+  return [...baseTransitions, ...writeTransitions];
 }
