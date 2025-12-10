@@ -23,6 +23,7 @@ import {
 } from '@/lib/turingMachine';
 import {
   getTMConfig,
+  getTMConfigForNumbers,
   getTransitionsArray,
   computeBinaryAddition,
   computeBinarySubtraction,
@@ -61,8 +62,8 @@ export function TuringMachine() {
   const executionTimerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  // Get TM configuration for current operation
-  const tmConfig = getTMConfig(operation);
+  // Get TM configuration for current operation with actual numbers
+  const tmConfig = getTMConfigForNumbers(operation, number1, number2);
   const transitions = getTransitionsArray(operation);
 
   // Initialize machine
